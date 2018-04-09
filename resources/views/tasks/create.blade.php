@@ -6,6 +6,9 @@
 
     {!! Form::model($task, ['route' => 'tasks.store']) !!}
 
+        {!! Form::label('status', '状態:') !!}
+        echo Form::select('status', ['D' => '完了', 'N' => '未完了']);
+        
         {!! Form::label('content', 'タスク:') !!}
         {!! Form::text('content') !!}
 
