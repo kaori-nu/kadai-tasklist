@@ -10,12 +10,7 @@
 | and give it the controller to call when that URI is requested.
 |
 */
-
-Route::get('/', function () {
-    return view('welcome');
-});
-
-Route::get('/', 'TasksController@index');
+Route::get('/', 'WelcomeController@index');
 Route::resource('tasks', 'TasksController');
 
 // ユーザ登録
@@ -29,5 +24,6 @@ Route::get('logout', 'Auth\AuthController@getLogout')->name('logout.get');
 
 Route::group(['middleware' => 'auth'], function () {
     Route::resource('users', 'UsersController', ['only' => ['index', 'show']]);
+    Route::resource('tasks', 'TasksController', ['only' => ['store', 'destroy']]);
 });
 
