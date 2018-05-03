@@ -19,12 +19,31 @@ class TasksController extends Controller
      */
     public function index()
     {
-       $tasks = Task::all();
+        $data = [];
+        // ログインしているかどうか判定する
+        if (\Auth::check()) {
+            // ログインしていれば自分が登録したことのあるタスクのみを取得
+            $user = \Auth::user();
+            $tasks = $user->tasks()->orderBy('created_at', 'desc')->paginate(10);
 
-        return view('tasks.index', [
-            'tasks' => $tasks,
-        ]);
+            $data = [
+                'user' => $user,
+                'tasks' => $tasks,
+            ];
+        }
+        // ログインしていなければタスクの取得は行わない
+        // return view('welcome', $data);
+
+        // viewには
+        // view() = 関数 = Laravelの製作者が作ったもの
+        // 関数は引数を受け取れる
+        return view('tasks.index', $data);
     }
+    
+    // function view (引数1, 引数2) {
+    //     // 引数1で指定されたviewを表示 = tasks.index
+    //     // 引数2で指定された配列内のデータを引数1のview上で使用できるようにする
+    // }
 
     /**
      * Show the form for creating a new resource.
@@ -72,10 +91,13 @@ class TasksController extends Controller
     {
 
         $task = Task::find($id);
+        if (\Auth::user()->id === $task->user_id) {
+            return view('tasks.show', [
+                'task' => $task,
+            ]);
+        }
 
-        return view('tasks.show', [
-            'task' => $task,
-        ]);
+        return redirect('/');
     }
 
     /**
@@ -87,13 +109,13 @@ class TasksController extends Controller
     public function edit($id)
     {
         $task = Task::find($id);
-
-
-        return view('tasks.edit', [
-            'task' => $task,
-        ]);
+        if (\Auth::user()->id === $task->user_id) {
+            return view('tasks.edit', [
+                'task' => $task,
+            ]);
+        }
+        return redirect('/');
     }
-
 
     /**
      * Update the specified resource in storage.
@@ -106,9 +128,9 @@ class TasksController extends Controller
     {
         $this->validate($request, [
             'content' => 'required|max:10',
-            ]);
-
-        $task = Task::find($id);
+        ]);
+        
+        $task = new Task;
         $task->user_id = Auth::user()->id;
         $task->status = $request->status;
         $task->content = $request->content;
@@ -126,11 +148,12 @@ class TasksController extends Controller
     public function destroy($id)
     {
         $task = Task::find($id);
-        
+       
         if (\Auth::user()->id === $task->user_id) {
-              $task->delete();
+            $task->delete();
         }
 
-        return redirect()->back();
+        return redirect('/');
     }
+        
 }
