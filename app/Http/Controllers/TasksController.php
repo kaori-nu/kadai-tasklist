@@ -130,7 +130,7 @@ class TasksController extends Controller
             'content' => 'required|max:10',
         ]);
         
-        $task = new Task;
+        $task = Task::find($id);
         $task->user_id = Auth::user()->id;
         $task->status = $request->status;
         $task->content = $request->content;
